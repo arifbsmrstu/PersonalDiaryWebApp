@@ -61,7 +61,7 @@ public class NoteServiceImpl implements NoteService {
     }
 
     private void checkRequestValidity(Note note, AppUser user) {
-        if (note.getAppUser().getId().equals(user.getId())) {
+        if (!note.getAppUser().getId().equals(user.getId())) {
             throw new IllegalArgumentException("Invalid Request");
         }
     }
