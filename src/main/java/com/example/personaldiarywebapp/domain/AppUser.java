@@ -20,7 +20,7 @@ public class AppUser {
     @Column(name = "user_name", unique = true, nullable = false)
     private String userName;
 
-    @Size(min = 4, max = 255, message = "Minimum username length: 4 characters")
+    @Size(min = 4, max = 255, message = "Minimum email length: 4 characters")
     @Column(unique = true, nullable = false)
     private String email;
 
