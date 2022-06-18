@@ -85,10 +85,24 @@ GET /api/notes/5 # get note with id 5 which belongs to current logged in user
 
 ```http
 POST /api/notes {note data} # create new note
+
+Request Body
+{
+    "title" : "note 1",
+    "categoryId" : 2,
+    "content" : "Creating note for test"
+}
 ```
 
 ```http
 PUT /api/notes/3 {note data} # patch note id 3
+
+Request Body
+{
+    "title" : "note 1",
+    "categoryId" : 3,
+    "content" : "Changing categoryId"
+}
 ```
 
 ```http
@@ -96,11 +110,13 @@ DELETE /api/notes/3 # delete note id 3
 ```
 
 ```http
-GET /api/notes?query=budget&fi=title # search for keyword budget on title field and return matched notes
+GET /api/notes?query=budget&fi=title 
+# search for keyword budget on title field and return matched notes
 ```
 
 ```http
-GET /api/notes?query=budget&fl=content # search for keyword budget on content field and return matched notes
+GET /api/notes?query=budget&fl=content 
+# search for keyword budget on content field and return matched notes
 ```
 
 ```http
@@ -112,15 +128,26 @@ GET /api/notes/-/categories/2 # get list of notes belonging to category id 2
 ```
 
 ```http
-GET /api/notes/-/categories/2?query=budget # get list of notes belonging to category id 2 having keyword budget matching on either title or content field
+GET /api/notes/-/categories/2?query=budget 
+# get list of notes belonging to category id 2 having keyword budget matching on either title or content field
 ```
 
 ```http
 POST /api/categories # create new category
+
+Request Body
+{
+    "name" : "test-category"
+}
 ```
 
 ```http
 PUT /api/categories/3 {category data} # update category id 3 with category data
+
+Request Body
+{
+    "name" : "new-category"
+}
 ```
 
 ```http
