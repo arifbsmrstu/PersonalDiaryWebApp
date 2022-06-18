@@ -42,6 +42,9 @@ public class NoteServiceImpl implements NoteService {
         AppUser user = authService.getCurrentLoggedInUser();
         Category category = categoryService.findById(request.getCategoryId())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid category id."));
+        if (!category.getAppUser().getId().equals(user.getId())) {
+            throw new IllegalArgumentException("Not a validate category for this user.");
+        }
 
         Note note = getNewNote(request, category, user);
         return noteRepository.save(note);
