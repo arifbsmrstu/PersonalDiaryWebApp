@@ -2,7 +2,6 @@ package com.example.personaldiarywebapp.service;
 
 import com.example.personaldiarywebapp.domain.AppUser;
 import com.example.personaldiarywebapp.domain.Category;
-import com.example.personaldiarywebapp.domain.Note;
 import com.example.personaldiarywebapp.model.ActionRepose;
 import com.example.personaldiarywebapp.model.CategoryRequest;
 import com.example.personaldiarywebapp.repository.CategoryRepository;
@@ -51,20 +50,24 @@ public class CategoryServiceImpl implements CategoryService {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid category id"));
 
-        AppUser user = authService.getCurrentLoggedInUser();
-        if (!category.getAppUser().equals(user)) {
-            throw new IllegalArgumentException("Invalid request from user.");
-        }
-
+        checkValidity(category);
         categoryRepository.delete(category);
         return new ActionRepose().result(true)
                 .message("Category deleted successfully.");
+    }
+
+    private void checkValidity(Category category) {
+        AppUser user = authService.getCurrentLoggedInUser();
+        if (!category.getAppUser().getId().equals(user.getId())) {
+            throw new IllegalArgumentException("Invalid request from user.");
+        }
     }
 
     @Override
     public Category update(Long id, CategoryRequest request) {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid category id"));
+        checkValidity(category);
         category.setName(request.getName());
         return categoryRepository.save(category);
     }

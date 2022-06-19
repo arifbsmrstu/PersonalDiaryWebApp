@@ -115,7 +115,7 @@ GET /api/notes?query=budget&fi=title
 ```
 
 ```http
-GET /api/notes?query=budget&fl=content 
+GET /api/notes?query=budget&fi=content
 # search for keyword budget on content field and return matched notes
 ```
 
@@ -124,11 +124,11 @@ GET /api/categories # get list of categories belonging to logged in user
 ```
 
 ```http
-GET /api/notes/-/categories/2 # get list of notes belonging to category id 2
+GET /api/notes/categories/2 # get list of notes belonging to category id 2
 ```
 
 ```http
-GET /api/notes/-/categories/2?query=budget 
+GET /api/notes/categories/2?query=budget 
 # get list of notes belonging to category id 2 having keyword budget matching on either title or content field
 ```
 
