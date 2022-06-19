@@ -40,8 +40,10 @@ public class NoteServiceImpl implements NoteService {
     @Transactional
     public Note create(NoteRequest request) {
         AppUser user = authService.getCurrentLoggedInUser();
+
         Category category = categoryService.findById(request.getCategoryId())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid category id."));
+
         if (!category.getAppUser().getId().equals(user.getId())) {
             throw new IllegalArgumentException("Not a validate category for this user.");
         }
@@ -52,18 +54,10 @@ public class NoteServiceImpl implements NoteService {
 
     @Override
     public Note findById(Long id) {
-        AppUser user = authService.getCurrentLoggedInUser();
         Note note = noteRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException(INVALID_NOTE_ID));
-
-        checkRequestValidity(note, user);
+        checkRequestValidity(note);
         return note;
-    }
-
-    private void checkRequestValidity(Note note, AppUser user) {
-        if (!note.getAppUser().getId().equals(user.getId())) {
-            throw new IllegalArgumentException("Invalid Request");
-        }
     }
 
     @Override
@@ -71,6 +65,7 @@ public class NoteServiceImpl implements NoteService {
         Note note = noteRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException(INVALID_NOTE_ID));
 
+        checkRequestValidity(note);
         noteRepository.delete(note);
         return new ActionRepose().result(true)
                 .message("Note deleted successfully.");
@@ -79,13 +74,16 @@ public class NoteServiceImpl implements NoteService {
     @Override
     public Note update(Long id, NoteRequest request) {
         AppUser user = authService.getCurrentLoggedInUser();
-
         Note note = noteRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException(INVALID_NOTE_ID));
 
-        checkRequestValidity(note, user);
+        checkRequestValidity(note);
         Category category = categoryService.findById(request.getCategoryId())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid category id."));
+
+        if (!category.getAppUser().getId().equals(user.getId())) {
+            throw new IllegalArgumentException("Invalid category for this user.");
+        }
 
         note.setTitle(request.getTitle());
         note.setContent(request.getContent());
@@ -96,20 +94,23 @@ public class NoteServiceImpl implements NoteService {
 
     @Override
     public List<Note> searchByQuery(String query, String field) {
+        AppUser user = authService.getCurrentLoggedInUser();
         return switch(field) {
-            case "title" -> noteRepository.searchAtTitle(query);
-            case "content" -> noteRepository.searchAtContent(query);
+            case "title" -> noteRepository.searchAtTitle(query, user.getId());
+            case "content" -> noteRepository.searchAtContent(query, user.getId());
             default -> Collections.emptyList();
         };
     }
 
     @Override
     public List<Note> findNoteByCategory(Long categoryId) {
+        checkValidRequestForCategoryFromValidUser(categoryId);
         return noteRepository.findNoteByCategory(categoryId);
     }
 
     @Override
     public List<Note> searchNotesByKeywordInCategory(Long categoryId, String query) {
+        checkValidRequestForCategoryFromValidUser(categoryId);
         return noteRepository.searchNotesByKeywordInCategory(categoryId, query);
     }
 
@@ -121,5 +122,22 @@ public class NoteServiceImpl implements NoteService {
         note.setAppUser(user);
         note.setLastUpdatedTime(new Date());
         return note;
+    }
+
+    private void checkRequestValidity(Note note) {
+        AppUser user = authService.getCurrentLoggedInUser();
+        if (!note.getAppUser().getId().equals(user.getId())) {
+            throw new IllegalArgumentException("Invalid User Request");
+        }
+    }
+
+    private void checkValidRequestForCategoryFromValidUser(Long categoryId) {
+        AppUser user = authService.getCurrentLoggedInUser();
+        Category category = categoryService.findById(categoryId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid category id."));
+
+        if (!category.getAppUser().getId().equals(user.getId())) {
+            throw new IllegalArgumentException("Invalid category for this user.");
+        }
     }
 }
